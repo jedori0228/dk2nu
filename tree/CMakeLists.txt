@@ -75,7 +75,17 @@ target_link_libraries(dk2nuTree ${ROOT_LIBRARIES}
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
-install(TARGETS dk2nuTree DESTINATION lib)
+# Add dk2nuTree to the export set 'dk2nuTargets'
+install(TARGETS dk2nuTree 
+    EXPORT dk2nuTargets
+    DESTINATION lib
+    INCLUDES DESTINATION include
+)
+
+# Also ensure the target itself knows its include path for the installation
+target_include_directories(dk2nuTree INTERFACE 
+    $<INSTALL_INTERFACE:include>
+)
 install(FILES ${TREEDICTFILES} DESTINATION lib)
 
 #--------------------

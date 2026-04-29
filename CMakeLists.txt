@@ -24,8 +24,9 @@
 #----------------------------------------------------------------------------
 # Setup the project
 #
-cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
-project(dk2nu)
+cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
+
+project(dk2nu VERSION 01.10.01)
 set(CMAKE_BUILD_TYPE Debug)
 set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
@@ -167,3 +168,37 @@ if(COPY_AUX)
                       scripts/examples/test_read_dk2nu.C
           DESTINATION scripts/examples)
 endif()
+
+include(CMakePackageConfigHelpers)
+
+# 1. Install the export set created in tree/CMakeLists.txt
+install(EXPORT dk2nuTargets
+    FILE dk2nuTargets.cmake
+    NAMESPACE dk2nu::
+    DESTINATION lib/cmake/dk2nu
+)
+
+# 2. Generate the Config file from the template
+configure_package_config_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Templates/dk2nuConfig.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/dk2nuConfig.cmake"
+    INSTALL_DESTINATION lib/cmake/dk2nu
+)
+
+# 3. Generate a version file
+write_basic_config_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/dk2nuConfigVersion.cmake"
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY AnyNewerVersion
+)
+
+# 4. Install these files to the same directory as the targets
+install(FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/dk2nuConfig.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/dk2nuConfigVersion.cmake"
+    DESTINATION lib/cmake/dk2nu
+)
+
+configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/Templates/setup.dk2nu.sh.in
+  ${PROJECT_BINARY_DIR}/setup.dk2nu.sh @ONLY)
+install(PROGRAMS ${PROJECT_BINARY_DIR}/setup.dk2nu.sh DESTINATION bin)
